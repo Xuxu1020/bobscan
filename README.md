@@ -1,5 +1,14 @@
 BobScan
 
+Setup:
+1. Clone the repository
+
+git clone https://github.com/Xuxu1020/bobscan.git
+
+2. Install dependencies
+
+python -m pip install -r requirements.txt
+
 How to run:
 1. Save to HTML report:
 
