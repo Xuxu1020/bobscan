@@ -1,0 +1,5 @@
+#dependencies
+
+aiohttp>=3.8.0 #http requests
+beautifulsoup4>=4.10.0 #parsing
+rich>=12.0.0 #output for terminal UI
