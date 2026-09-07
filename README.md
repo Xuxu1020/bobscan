@@ -9,6 +9,8 @@ git clone https://github.com/Xuxu1020/bobscan.git
 
 python -m pip install -r requirements.txt
 
+
+
 How to run:
 1. Save to HTML report:
 
