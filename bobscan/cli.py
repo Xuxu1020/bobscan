@@ -41,12 +41,9 @@ def setup_logging(verbose: bool):
 
 def print_banner():
     banner = """
- [bold cyan]  ____        _     ____                      [/bold cyan]
- [bold cyan] | __ )  ___ | |__ / ___|  ___  __ _ _ __     [/bold cyan]
- [bold cyan] |  _ \\ / _ \\| '_ \\\\___ \\ / __|/ _` | '_ \\    [/bold cyan]
- [bold cyan] | |_) | (_) | |_) |___) | (__| (_| | | | |   [/bold cyan]
- [bold cyan] |____/ \\___/|_.__/|____/ \\___|\\__,_|_| |_|   [/bold cyan]
-[bold white]    Modular Web Vulnerability Scanner         [/bold white]
+    ===========================================
+        BobScan - Web Vulnerability Scanner  
+    ===========================================
     """
     try:
         console.print(banner)

@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BobScan Security Assessment Report</title>
+    <style>
+        :root {
+            --bg-color: #0d1117;
+            --panel-bg: #161b22;
+            --border-color: #30363d;
+            --text-color: #c9d1d9;
+            --text-muted: #8b949e;
+            --primary: #58a6ff;
+            --critical: #f85149;
+            --high: #ff7b72;
+            --medium: #f0883e;
+            --low: #d29922;
+            --info: #388bfd;
+        }
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 24px;
+        }
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 20px;
+            margin-bottom: 24px;
+        }
+        h1 { margin: 0; color: #fff; font-size: 24px; }
+        .badge {
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: bold;
+            display: inline-block;
+        }
+        .badge-CRITICAL { background: rgba(248, 81, 73, 0.15); color: var(--critical); border: 1px solid var(--critical); }
+        .badge-HIGH { background: rgba(255, 123, 114, 0.15); color: var(--high); border: 1px solid var(--high); }
+        .badge-MEDIUM { background: rgba(240, 136, 62, 0.15); color: var(--medium); border: 1px solid var(--medium); }
+        .badge-LOW { background: rgba(210, 153, 34, 0.15); color: var(--low); border: 1px solid var(--low); }
+        .badge-INFO { background: rgba(56, 139, 253, 0.15); color: var(--info); border: 1px solid var(--info); }
+        
+        .metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 16px;
+            margin-bottom: 32px;
+        }
+        .metric-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            padding: 16px;
+            text-align: center;
+        }
+        .metric-val { font-size: 32px; font-weight: bold; margin-top: 8px; }
+        .metric-card.critical .metric-val { color: var(--critical); }
+        .metric-card.high .metric-val { color: var(--high); }
+        .metric-card.medium .metric-val { color: var(--medium); }
+        .metric-card.low .metric-val { color: var(--low); }
+        
+        .vuln-list {
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .vuln-card {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            overflow: hidden;
+        }
+        .vuln-header {
+            padding: 16px;
+            background: rgba(255, 255, 255, 0.02);
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+        }
+        .vuln-header-left { display: flex; align-items: center; gap: 12px; }
+        .vuln-title { font-size: 16px; font-weight: bold; color: #fff; }
+        .vuln-body {
+            padding: 16px;
+        }
+        .vuln-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 12px;
+            font-size: 13px;
+            background: rgba(0, 0, 0, 0.2);
+            padding: 12px;
+            border-radius: 4px;
+            margin-bottom: 16px;
+        }
+        .vuln-meta span { color: var(--text-muted); }
+        .vuln-meta strong { color: var(--text-color); }
+        .evidence-box {
+            background: #000;
+            color: #39ff14;
+            padding: 12px;
+            border-radius: 4px;
+            font-family: monospace;
+            overflow-x: auto;
+            white-space: pre-wrap;
+            border: 1px solid var(--border-color);
+            margin-top: 10px;
+        }
+        .section-title {
+            font-size: 18px;
+            margin-bottom: 16px;
+            color: #fff;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div>
+            <h1>BobScan Security Assessment Report</h1>
+            <div style="color: var(--text-muted); margin-top: 6px;">Target: <strong>http://testphp.vulnweb.com</strong></div>
+        </div>
+        <div>
+            <span class="badge" style="background: #238636; color: #fff;">Scan Complete</span>
+        </div>
+    </header>
+
+    <div class="metrics-grid">
+        <div class="metric-card">
+            <div style="color: var(--text-muted);">Pages Crawled</div>
+            <div class="metric-val" style="color: var(--primary);">0</div>
+        </div>
+        <div class="metric-card critical">
+            <div>Critical Issues</div>
+            <div class="metric-val">0</div>
+        </div>
+        <div class="metric-card high">
+            <div>High Issues</div>
+            <div class="metric-val">0</div>
+        </div>
+        <div class="metric-card medium">
+            <div>Medium Issues</div>
+            <div class="metric-val">0</div>
+        </div>
+        <div class="metric-card low">
+            <div>Low/Info Issues</div>
+            <div class="metric-val">0</div>
+        </div>
+    </div>
+
+    <div class="section-title">Discovered Vulnerabilities (0)</div>
+    
+    <div class="vuln-list" id="vuln-container"></div>
+
+    <script>
+        const vulns = [];
+        const container = document.getElementById('vuln-container');
+        
+        if (vulns.length === 0) {
+            container.innerHTML = '<div style="text-align: center; padding: 40px; color: var(--text-muted);">No vulnerabilities detected during assessment. Good job!</div>';
+        } else {
+            vulns.forEach((v, idx) => {
+                const card = document.createElement('div');
+                card.className = 'vuln-card';
+                card.innerHTML = `
+                    <div class="vuln-header">
+                        <div class="vuln-header-left">
+                            <span class="badge badge-${v.severity}">${v.severity}</span>
+                            <span class="vuln-title">${v.title}</span>
+                        </div>
+                        <div style="color: var(--text-muted); font-size: 13px;">${v.plugin_name}</div>
+                    </div>
+                    <div class="vuln-body">
+                        <div class="vuln-meta">
+                            <div><span>URL:</span> <strong>${v.url}</strong></div>
+                            <div><span>Parameter:</span> <strong>${v.parameter}</strong></div>
+                            <div><span>Method:</span> <strong>${v.request_method}</strong></div>
+                            <div><span>Severity:</span> <strong style="color: var(--${v.severity.toLowerCase()})">${v.severity}</strong></div>
+                        </div>
+                        <div>
+                            <strong>Description:</strong>
+                            <p style="margin-top: 6px; margin-bottom: 16px;">${v.description}</p>
+                        </div>
+                        <div>
+                            <strong>Remedy / Mitigation:</strong>
+                            <p style="margin-top: 6px; margin-bottom: 16px; color: #58a6ff;">${v.remedy}</p>
+                        </div>
+                        ${v.evidence ? `
+                            <div>
+                                <strong>Evidence:</strong>
+                                <div class="evidence-box">${v.evidence}</div>
+                            </div>
+                        ` : ''}
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+    </script>
+</body>
+</html>
